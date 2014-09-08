@@ -149,17 +149,18 @@
 /mob/living/carbon/human/proc/equip_or_collect(var/obj/item/W, var/slot)
 	if(!equip_to_slot_or_del(W, slot))
 		// Do I have a backpack?
-		var/obj/item/weapon/storage/B = back
-
-		// Do I have a plastic bag?
-		if(!B)
+		var/obj/item/weapon/storage/B
+		if(istype(back,/obj/item/weapon/storage))
+			B = back
+			// Do I have a plastic bag?
+		else
 			B=is_in_hands(/obj/item/weapon/storage/bag/plasticbag)
 
-		if(!B)
-			// Gimme one.
-			B=new /obj/item/weapon/storage/bag/plasticbag(null) // Null in case of failed equip.
-			if(!put_in_hands(B,slot_back))
-				return // Fuck it
+			if(!B)
+				// Gimme one.
+				B=new /obj/item/weapon/storage/bag/plasticbag(null) // Null in case of failed equip.
+				if(!put_in_hands(B,slot_back))
+					return // Fuck it
 		B.handle_item_insertion(W,1)
 
 
@@ -844,7 +845,7 @@ var/list/slot_equipment_priority = list( \
 				stat(null, "PiNet-[master_controller.networks_cost]\t#[pipe_networks.len]")
 				stat(null, "Ponet-[master_controller.powernets_cost]\t#[powernets.len]")
 				stat(null, "NanoUI-[master_controller.nano_cost]\t#[nanomanager.processing_uis.len]")
-				stat(null, "GC-[master_controller.gc_cost]\t#[garbage.queue.len]")
+//				stat(null, "GC-[master_controller.gc_cost]\t#[garbage.queue.len]")
 				stat(null, "Tick-[master_controller.ticker_cost]")
 				stat(null, "ALL-[master_controller.total_cost]")
 			else

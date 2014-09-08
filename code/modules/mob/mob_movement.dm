@@ -207,6 +207,7 @@
 
 	if(!mob.canmove)
 		if (mob.buckled && (istype(mob.buckled, /obj/structure/stool/bed/chair/wheelchair))) // Exception for wheelchairs
+		else if (mob.buckled && (istype(mob.buckled, /obj/structure/stool/bed/chair/cart)))
 		else	return
 
 	//if(istype(mob.loc, /turf/space) || (mob.flags & NOGRAV))
@@ -268,6 +269,8 @@
 					if((!l_hand || l_hand.status & ORGAN_DESTROYED) && (!r_hand || r_hand.status & ORGAN_DESTROYED))
 						return // No hands to drive your chair? Tough luck!
 				move_delay += 2
+				return mob.buckled.relaymove(mob,direct)
+			else if(istype(mob.buckled, /obj/structure/stool/bed/chair/cart))
 				return mob.buckled.relaymove(mob,direct)
 
 		//We are now going to move
@@ -421,14 +424,8 @@
 		if(istype(turf,/turf/space))
 			continue
 
-		if(istype(src,/mob/living/carbon/human/))  // Only humans can wear magboots, so we give them a chance to.
-			if((istype(turf,/turf/simulated/floor)) && (src.lastarea.has_gravity == 0) && !(istype(src:shoes, /obj/item/clothing/shoes/magboots) && (src:shoes:flags & NOSLIP)))
-				continue
-
-
-		else
-			if((istype(turf,/turf/simulated/floor)) && (src.lastarea.has_gravity == 0)) // No one else gets a chance.
-				continue
+		if(!turf.density && !mob_negates_gravity())
+			continue
 
 
 
@@ -457,18 +454,22 @@
 	if(!dense_object)
 		return 0
 
-
-
 	//Check to see if we slipped
 	if(prob(Process_Spaceslipping(5)))
 		src << "\blue <B>You slipped!</B>"
 		src.inertia_dir = src.last_move
 		step(src, src.inertia_dir)
 		return 0
+
 	//If not then we can reset inertia and move
 	inertia_dir = 0
 	return 1
 
+/mob/proc/mob_has_gravity(turf/T)
+	return has_gravity(src, T)
+
+/mob/proc/mob_negates_gravity()
+	return 0
 
 /mob/proc/Process_Spaceslipping(var/prob_slip = 5)
 	//Setup slipage
@@ -478,3 +479,6 @@
 
 	prob_slip = round(prob_slip)
 	return(prob_slip)
+
+/mob/proc/update_gravity()
+	return
